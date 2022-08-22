@@ -2,6 +2,8 @@
 
 <head>
   <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+  <script src="Base.js" type="text/javascript"></script>
+  <script src="Plug.js" type="text/javascript"></script>
   <style>
     * {
       font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
@@ -51,214 +53,53 @@
   var selected_id = null;
   var scene = document.querySelector('a-scene');
 
+  let CUBE = new Base({ color: 'red' });
+
+  console.log(CUBE);
+
   init();
 
   function init() {
-    var base = {
-      UNIQUE: "BASE",
-      id: generateId(),
-      is_plug: false,
-      type: "a-box",
-      position: {
-        x: 0,
-        y: 0,
-        z: 0
-      },
-      rotation: {
-        x: 0,
-        y: 0,
-        z: 0
-      },
-      width: 6,
-      depth: 6,
-      height: 0.25,
-      radius: 0,
-      color: 'wheat',
-      plugs: null,
-    };
+    let base = new Base();
+    base.generatePlugs();
 
-    base.plugs = [
-      {
-        id: generateId(),
-        is_plug: true,
-        is_used: false,
-        type: "a-box",
-        pointing: 'south',
-        position: {
-          x: base.position.x,
-          y: base.position.y,
-          z: base.position.z + base.depth / 2,
-        },
-        rotation: {
-          x: 0,
-          y: 0,
-          z: 0
-        },
-        width: 0.40,
-        depth: 0.40,
-        height: 0.40,
-        radius: 1,
-        color: 'blue',
-        parent: base
-      },
-      {
-        id: generateId(),
-        is_plug: true,
-        is_used: false,
-        type: "a-box",
-        pointing: 'north',
-        position: {
-          x: base.position.x,
-          y: base.position.y,
-          z: base.position.z - base.depth / 2,
-        },
-        rotation: {
-          x: 0,
-          y: 0,
-          z: 0
-        },
-        width: 0.40,
-        depth: 0.40,
-        height: 0.40,
-        radius: 1,
-        color: 'blue',
-        parent: base
-      },
-      {
-        id: generateId(),
-        is_plug: true,
-        is_used: false,
-        type: "a-box",
-        pointing: 'east',
-        position: {
-          x: base.position.x + base.depth / 2,
-          y: base.position.y,
-          z: base.position.z
-        },
-        rotation: {
-          x: 0,
-          y: 0,
-          z: 0
-        },
-        width: 0.40,
-        depth: 0.40,
-        height: 0.40,
-        radius: 1,
-        color: 'blue',
-        parent: base
-      },
-      {
-        id: generateId(),
-        is_plug: true,
-        is_used: false,
-        type: "a-box",
-        pointing: 'west',
-        position: {
-          x: base.position.x - base.depth / 2,
-          y: base.position.y,
-          z: base.position.z
-        },
-        rotation: {
-          x: 0,
-          y: 0,
-          z: 0
-        },
-        width: 0.40,
-        depth: 0.40,
-        height: 0.40,
-        radius: 1,
-        color: 'blue',
-        parent: base
-      },
-      {
-        id: generateId(),
-        is_plug: true,
-        is_used: false,
-        type: "a-cylinder",
-        pointing: 'south',
-        position: {
-          x: base.position.x,
-          y: base.position.y + 5 / 2,
-          z: base.position.z,
-        },
-        rotation: {
-          x: 0,
-          y: 0,
-          z: 0
-        },
-        width: 0.10,
-        depth: 0.10,
-        height: 5,
-        radius: 1,
-        color: 'blue',
-        parent: base
-      },
-    ];
-
-    element = document.createElement(base.type);
-    element.setAttribute('id', base.id);
-    element.setAttribute('position', base.position.x + ' ' + base.position.y + ' ' + base.position.z);
-    element.setAttribute('rotation', base.rotation.x + ' ' + base.rotation.y + ' ' + base.rotation.z);
-    element.setAttribute('width', base.width);
-    element.setAttribute('depth', base.depth);
-    element.setAttribute('height', base.height);
-    element.setAttribute('radius', base.radius);
-    element.setAttribute('color', base.color);
-
+    createElementDOM(base);
+    elements.push(base);
 
     base.plugs.forEach(plug => {
-      if (!plug.is_used) {
-        model = document.createElement(plug.type);
-        model.setAttribute('id', plug.id);
-        model.setAttribute('position', plug.position.x + ' ' + plug.position.y + ' ' + plug.position.z);
-        model.setAttribute('width', plug.width);
-        model.setAttribute('depth', plug.depth);
-        model.setAttribute('height', plug.height);
-        model.setAttribute('radius', plug.radius);
-        model.setAttribute('color', plug.color);
+      createElementDOM(plug);
+      elements.push(plug);
+    });
+  }
 
-        scene.appendChild(model);
+  function createElementDOM(data) {
+    element = document.createElement(data.type);
+    element.setAttribute('id', data.id);
+    element.setAttribute('position', data.position.x + ' ' + data.position.y + ' ' + data.position.z);
+    element.setAttribute('width', data.width);
+    element.setAttribute('depth', data.depth);
+    element.setAttribute('height', data.height);
+    element.setAttribute('radius', data.radius);
+    element.setAttribute('color', data.color);
 
-        elements.push(plug);
-
-        model.addEventListener('click', function (evt) {
-          let id = evt.target.id;
-
-          elements.forEach(element => {
-            if (element.is_plug) {
-              let target = document.getElementById(element.id);
-              target.setAttribute('color', 'blue');
-              element.color = 'blue';
-            }
-          });
-
-          let element = elements.find(element => element.id == id);
-          element.color = 'red';
-
-          let target = document.getElementById(id);
-          target.setAttribute('color', element.color);
-
-          selected_id = id;
-        });
-      }
+    element.addEventListener('click', function (evt) {
+      let id = evt.target.id;
+      eventClick(id);
     });
 
     scene.appendChild(element);
   }
 
   function addElement() {
-
     if (!selected_id) {
       return;
     }
 
     var target = elements.find(element => element.id == selected_id);
-    console.log('#########################################');
-    console.log(target);
+    var plug = document.getElementById(selected_id);
 
-    var parent = target.parent;
-
-    console.log(parent);
+    var parent_id = target.connections[0];
+    var parent = elements.find(element => element.id == parent_id);
 
     let position = {
       x: parent.position.x,
@@ -267,187 +108,86 @@
     };
 
     position.x = target.pointing == 'east' ? position.x + parent.width : position.x;
-    position.x = target.pointing == 'west' ? position.x - parent.width : position.x;
+    position.x = target.pointing == 'weast' ? position.x - parent.width : position.x;
     position.z = target.pointing == 'north' ? position.z - parent.width : position.z;
     position.z = target.pointing == 'south' ? position.z + parent.width : position.z;
 
-    console.log(position);
+    var base = new Base();
+    base.position = position;
+    base.generatePlugs();
 
-    var base = {
-      UNIQUE: "BASE-AUX",
-      id: generateId(),
-      is_plug: false,
-      type: "a-box",
-      position,
-      rotation: {
-        x: 0,
-        y: 0,
-        z: 0
-      },
-      width: 6,
-      depth: 6,
-      height: 0.25,
-      radius: 0,
-      color: 'wheat',
-      plugs: null,
-    };
-
-    base.plugs = [
-      {
-        id: generateId(),
-        is_plug: true,
-        is_used: false,
-        type: "a-box",
-        pointing: 'south',
-        position: {
-          x: base.position.x,
-          y: base.position.y,
-          z: base.position.z + base.depth / 2,
-        },
-        rotation: {
-          x: 0,
-          y: 0,
-          z: 0
-        },
-        width: 0.40,
-        depth: 0.40,
-        height: 0.40,
-        radius: 1,
-        color: 'blue',
-        parent: base
-      },
-      {
-        id: generateId(),
-        is_plug: true,
-        is_used: false,
-        type: "a-box",
-        pointing: 'north',
-        position: {
-          x: base.position.x,
-          y: base.position.y,
-          z: base.position.z - base.depth / 2,
-        },
-        rotation: {
-          x: 0,
-          y: 0,
-          z: 0
-        },
-        width: 0.40,
-        depth: 0.40,
-        height: 0.40,
-        radius: 1,
-        color: 'blue',
-        parent: base
-      },
-      {
-        id: generateId(),
-        is_plug: true,
-        is_used: false,
-        type: "a-box",
-        pointing: 'east',
-        position: {
-          x: base.position.x + base.depth / 2,
-          y: base.position.y,
-          z: base.position.z
-        },
-        rotation: {
-          x: 0,
-          y: 0,
-          z: 0
-        },
-        width: 0.40,
-        depth: 0.40,
-        height: 0.40,
-        radius: 1,
-        color: 'blue',
-        parent: base
-      },
-      {
-        id: generateId(),
-        is_plug: true,
-        is_used: false,
-        type: "a-box",
-        pointing: 'west',
-        position: {
-          x: base.position.x - base.depth / 2,
-          y: base.position.y,
-          z: base.position.z
-        },
-        rotation: {
-          x: 0,
-          y: 0,
-          z: 0
-        },
-        width: 0.40,
-        depth: 0.40,
-        height: 0.40,
-        radius: 1,
-        color: 'blue',
-        parent: base
-      },
-    ];
-
-    element = document.createElement(base.type);
-    element.setAttribute('id', base.id);
-    element.setAttribute('position', base.position.x + ' ' + base.position.y + ' ' + base.position.z);
-    element.setAttribute('rotation', base.rotation.x + ' ' + base.rotation.y + ' ' + base.rotation.z);
-    element.setAttribute('width', base.width);
-    element.setAttribute('depth', base.depth);
-    element.setAttribute('height', base.height);
-    element.setAttribute('radius', base.radius);
-    element.setAttribute('color', base.color);
+    createElementDOM(base);
+    elements.push(base);
 
     base.plugs.forEach(plug => {
-      if (!plug.is_used) {
-        model = document.createElement(plug.type);
-        model.setAttribute('id', plug.id);
-        model.setAttribute('position', plug.position.x + ' ' + plug.position.y + ' ' + plug.position.z);
-        model.setAttribute('width', plug.width);
-        model.setAttribute('depth', plug.depth);
-        model.setAttribute('height', plug.height);
-        model.setAttribute('radius', plug.radius);
-        model.setAttribute('color', plug.color);
+      createElementDOM(plug);
+      elements.push(plug);
+    });
 
-        scene.appendChild(model);
+    target.connections.push(base.id);
+    removeElement(plug);
+  }
 
-        elements.push(plug);
+  function eventClick(id) {
+    console.log(id);
+    console.log(elements);
 
-        model.addEventListener('click', function (evt) {
-          let id = evt.target.id;
-
-          elements.forEach(element => {
-            if (element.is_plug) {
-              let target = document.getElementById(element.id);
-              target.setAttribute('color', 'blue');
-              element.color = 'blue';
-            }
-          });
-
-          let element = elements.find(element => element.id == id);
-          element.color = 'red';
-
-          let target = document.getElementById(id);
-          target.setAttribute('color', element.color);
-
-          selected_id = id;
-        });
+    elements.forEach(element => {
+      let target = document.getElementById(element.id);
+      if (!element.is_plug) {
+        target.setAttribute('color', 'wheat');
+        element.color = 'wheat';
+      } else {
+        target.setAttribute('color', 'blue');
+        element.color = 'blue';
       }
     });
 
-    scene.appendChild(element);
+    let element = elements.find(element => element.id == id);
+    element.color = 'green';
 
-    elements.push(base);
+    let target = document.getElementById(id);
+    target.setAttribute('color', element.color);
+
+    selected_id = id;
   }
 
   function removeElement() {
     if (selected_id != null) {
-      var element = document.getElementById(selected_id);
-      if (element) {
-        scene.removeChild(element);
+      let element = elements.filter(element => element.id == selected_id)[0];
+      let target = document.getElementById(element.id);
+
+      if (target) {
+        if (element.plugs) {
+          element.plugs.forEach(plug => {
+            let target = document.getElementById(plug.id);
+            if(target){
+              scene.removeChild(target);
+            }
+            elements = elements.filter(element => element.id != plug.id);
+          });
+
+          element.plugs = [];
+        }
+
+        scene.removeChild(target);
         elements = elements.filter(element => element.id != selected_id);
       }
     }
+
+    selected_id = null;
   }
+
+  // zqsd pressed
+  document.addEventListener('keydown', function (event) {
+    let camera = document.getElementById('rig');
+
+    if (event.keyCode == 104) {
+      camera.setAttribute('position', camera.getAttribute('position').x + ' ' + (camera.getAttribute('position').y + 0.25) + ' ' + camera.getAttribute('position').z);
+    } else if (event.keyCode == 98) {
+      camera.setAttribute('position', camera.getAttribute('position').x + ' ' + (camera.getAttribute('position').y - 0.25) + ' ' + camera.getAttribute('position').z);
+    }
+  });
 
   function randomColor() {
     return '#' + Math.floor(Math.random() * 16777215).toString(16);
@@ -457,16 +197,6 @@
     return Math.random().toString(36).substr(2, 9);
   }
 
-  // zqsd pressed
-    document.addEventListener('keydown', function (event) {
-      let camera = document.getElementById('rig');
-
-      if (event.keyCode == 104) {
-        camera.setAttribute('position', camera.getAttribute('position').x + ' ' + (camera.getAttribute('position').y + 0.25) + ' ' + camera.getAttribute('position').z);
-      } else if (event.keyCode == 98) {
-        camera.setAttribute('position', camera.getAttribute('position').x + ' ' + (camera.getAttribute('position').y - 0.25) + ' ' + camera.getAttribute('position').z);
-      } 
-    });
 
 
 </script>
