@@ -116,6 +116,22 @@
     base.position = position;
     base.generatePlugs();
 
+    // remove plug invert of target.position
+    base.plugs.forEach(plug => {
+      if (plug.pointing == 'east' && target.pointing == 'weast') {
+        base.plugs.splice(base.plugs.indexOf(plug), 1);
+      }
+      if (plug.pointing == 'weast' && target.pointing == 'east') {
+        base.plugs.splice(base.plugs.indexOf(plug), 1);
+      }
+      if (plug.pointing == 'north' && target.pointing == 'south') {
+        base.plugs.splice(base.plugs.indexOf(plug), 1);
+      }
+      if (plug.pointing == 'south' && target.pointing == 'north') {
+        base.plugs.splice(base.plugs.indexOf(plug), 1);
+      }
+    });
+
     createElementDOM(base);
     elements.push(base);
 
@@ -196,8 +212,6 @@
   function generateId() {
     return Math.random().toString(36).substr(2, 9);
   }
-
-
 
 </script>
 
