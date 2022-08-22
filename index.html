@@ -2,8 +2,9 @@
 
 <head>
   <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-  <script src="Base.js" type="text/javascript"></script>
-  <script src="Plug.js" type="text/javascript"></script>
+  <script src="object/Base.js" type="text/javascript"></script>
+  <script src="object/Plug.js" type="text/javascript"></script>
+  <script src="object/Pillar.js" type="text/javascript"></script>
   <style>
     * {
       font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
@@ -19,6 +20,12 @@
       <a-camera id="camera"></a-camera>
     </a-entity>
 
+    <!-- <a-assets>
+      <a-asset-item id="cityModel" src="scene.gltf"></a-asset-item>
+    </a-assets> -->
+
+    <!-- <a-entity gltf-model="#cityModel" modify-materials></a-entity> -->
+
     <a-sky id="sky" color="#333333"></a-sky>
   </a-scene>
 
@@ -27,9 +34,13 @@
     <div style="display: flex; width: 100%; height: 100%;">
       <div id="elements"
         style="color: white; border-radius: 3px; margin: 10px; width: 50%; display: flex; flex-wrap: wrap; scroll-behavior: auto; justify-content: center; overflow: auto;">
-        <div onclick="addElement()"
+        <div onclick="addBase()"
           style="width: 100px; height: 100px; background-color: rgb(49, 81, 168); margin: 10px 10px; display: flex; border-radius: 3px;">
           <span style="margin: auto;">BASE</span>
+        </div>
+        <div onclick="addPillar()"
+          style="width: 100px; height: 100px; background-color: rgb(49, 81, 168); margin: 10px 10px; display: flex; border-radius: 3px;">
+          <span style="margin: auto;">PILLAR</span>
         </div>
 
         <!-- <div onclick="addElement('CUBE')"
@@ -90,27 +101,42 @@
     scene.appendChild(element);
   }
 
-  function addElement() {
+  function addBase() {
     if (!selected_id) {
       return;
     }
 
     var target = elements.find(element => element.id == selected_id);
     var plug = document.getElementById(selected_id);
+    let position_plug = target.position;
 
     var parent_id = target.connections[0];
     var parent = elements.find(element => element.id == parent_id);
 
     let position = {
-      x: parent.position.x,
-      y: parent.position.y,
-      z: parent.position.z
+      x: position_plug.x,
+      y: position_plug.y,
+      z: position_plug.z
     };
 
-    position.x = target.pointing == 'east' ? position.x + parent.width : position.x;
-    position.x = target.pointing == 'weast' ? position.x - parent.width : position.x;
-    position.z = target.pointing == 'north' ? position.z - parent.width : position.z;
-    position.z = target.pointing == 'south' ? position.z + parent.width : position.z;
+    if (parent.type == 'a-box') {
+      position.x = target.pointing == 'east' ? position.x + parent.width / 2 : position.x;
+      position.x = target.pointing == 'weast' ? position.x - parent.width / 2 : position.x;
+      position.z = target.pointing == 'south' ? position.z + parent.width / 2 : position.z;
+      position.z = target.pointing == 'north' ? position.z - parent.width / 2 : position.z;
+    }
+
+
+    if (parent.type == 'a-cylinder') {
+      // position.x = position.x + parent.depth / 4;
+      // position.z = position.z + parent.depth / 4;
+
+      console.log("target.connections", target.connections);
+      let element = elements.find(element => element.id == target.connections[0]);
+
+      console.log("element", element);
+    }
+
 
     var base = new Base();
     base.position = position;
@@ -144,13 +170,60 @@
     removeElement(plug);
   }
 
+  function addPillar() {
+    if (!selected_id) {
+      return;
+    }
+
+    var target = elements.find(element => element.id == selected_id);
+    var plug = document.getElementById(selected_id);
+
+    var pillar = new Pillar();
+
+    let position = {
+      x: target.position.x,
+      y: target.position.y + pillar.height / 2,
+      z: target.position.z
+    };
+
+    pillar.position = position;
+    pillar.generatePlugs();
+
+    // remove plug invert of target.position
+    // pillar.plugs.forEach(plug => {
+    //   if (plug.pointing == 'east' && target.pointing == 'weast') {
+    //     base.plugs.splice(base.plugs.indexOf(plug), 1);
+    //   }
+    //   if (plug.pointing == 'weast' && target.pointing == 'east') {
+    //     base.plugs.splice(base.plugs.indexOf(plug), 1);
+    //   }
+    //   if (plug.pointing == 'north' && target.pointing == 'south') {
+    //     base.plugs.splice(base.plugs.indexOf(plug), 1);
+    //   }
+    //   if (plug.pointing == 'south' && target.pointing == 'north') {
+    //     base.plugs.splice(base.plugs.indexOf(plug), 1);
+    //   }
+    // });
+
+    createElementDOM(pillar);
+    elements.push(pillar);
+
+    pillar.plugs.forEach(plug => {
+      createElementDOM(plug);
+      elements.push(plug);
+    });
+
+    target.connections.push(pillar.id);
+    removeElement(plug);
+  }
+
   function eventClick(id) {
     console.log(id);
     console.log(elements);
 
     elements.forEach(element => {
       let target = document.getElementById(element.id);
-      if (!element.is_plug) {
+      if (element.plugs) {
         target.setAttribute('color', 'wheat');
         element.color = 'wheat';
       } else {
@@ -177,7 +250,7 @@
         if (element.plugs) {
           element.plugs.forEach(plug => {
             let target = document.getElementById(plug.id);
-            if(target){
+            if (target) {
               scene.removeChild(target);
             }
             elements = elements.filter(element => element.id != plug.id);
