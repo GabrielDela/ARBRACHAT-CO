@@ -77,7 +77,6 @@
 
     base.plugs.forEach(plug => {
       createElementDOM(plug, elementCreate);
-      elements.push(plug);
     });
   }
 
@@ -113,10 +112,13 @@
 
     var base = new Base();
 
-    var target = elements.find(element => element.id == selected_id);
-    var plug = document.getElementById(selected_id) ;
-    console.log("parentElement : ", plug.parentElement)
+    var plug = document.getElementById(selected_id);
 
+    var parent = elements.find(element => element.id == plug.parentElement.id)
+    var target = parent.plugs.find(element => element.id == selected_id);
+
+    console.log("parentElement : ", plug.parentElement)
+    console.log("target : ", target)
 
     let position_plug = target.position;
     let position = {
@@ -179,7 +181,6 @@
     elements.push(base);
     base.plugs.forEach(plug => {
       createElementDOM(plug, createBase);
-      elements.push(plug);
     });
 
     target.connections.push(base.id);
@@ -190,9 +191,10 @@
     if (!selected_id) {
       return;
     }
-
-    var target = elements.find(element => element.id == selected_id);
-    var plugElement = document.getElementById(selected_id);
+   var plug = document.getElementById(selected_id);
+    
+    var parent = elements.find(element => element.id == plug.parentElement.id)
+    var target = parent.plugs.find(element => element.id == selected_id);
 
     var pillar = new Pillar();
 
@@ -221,12 +223,11 @@
     //   }
     // });
 
-    let createPillar = createElementDOM(pillar, plugElement.parentElement);
+    let createPillar = createElementDOM(pillar, plug.parentElement);
     elements.push(pillar);
 
     pillar.plugs.forEach(plug => {
       createElementDOM(plug, createPillar);
-      elements.push(plug);
     });
 
     target.connections.push(pillar.id);
@@ -234,8 +235,8 @@
   }
 
   function eventClick(id) {
-    console.log(id);
-    console.log(elements);
+    console.log("Event click id element : ", id);
+    console.log("Elements lsit : ", elements);
 
     elements.forEach(element => {
       let target = document.getElementById(element.id);
@@ -248,12 +249,13 @@
       }
     });
 
-    let element = elements.find(element => element.id == id);
+    var elementInDOM = document.getElementById(id);
+    
+    var parent = elements.find(element => element.id == elementInDOM.parentElement.id)
+    var element = parent.plugs.find(element => element.id == id);
     element.color = 'green';
 
-    let target = document.getElementById(id);
-    target.setAttribute('color', element.color);
-
+    elementInDOM.setAttribute('color', element.color);
     selected_id = id;
   }
 
