@@ -54,6 +54,7 @@
       </div>
       <div id="tools" style="background-color: white; border-radius: 3px; margin: 5px; width: 50%;">
         <button onclick="removeElement()">Remove</button>
+        <button onclick="turnElement()">Turn item +90°</button>
       </div>
     </div>
   </div>
@@ -117,74 +118,79 @@
     var parent = elements.find(element => element.id == plug.parentElement.id)
     var target = parent.plugs.find(element => element.id == selected_id);
 
-    console.log("parentElement : ", plug.parentElement)
-    console.log("target : ", target)
+    if(target.authorized_types.find(x => x == 'BASE')){
 
-    let position_plug = target.position;
-    let position = {
-      x: position_plug.x,
-      y: position_plug.y,
-      z: position_plug.z
-    };
 
-    var parent_id = target.connections[0];
-    var parent = elements.find(element => element.id == parent_id);
+      console.log("parentElement : ", plug.parentElement)
+      console.log("target : ", target)
 
-    
+      let position_plug = target.position;
+      let position = {
+        x: position_plug.x,
+        y: position_plug.y,
+        z: position_plug.z
+      };
 
-    if (parent.type == 'a-box') {
-      position.x = target.pointing == 'east' ? position.x + parent.width / 2 : position.x;
-      position.x = target.pointing == 'weast' ? position.x - parent.width / 2 : position.x;
-      position.z = target.pointing == 'south' ? position.z + parent.width / 2 : position.z;
-      position.z = target.pointing == 'north' ? position.z - parent.width / 2 : position.z;
+      var parent_id = target.connections[0];
+      var parent = elements.find(element => element.id == parent_id);
+
+      
+
+      if (parent.type == 'a-box') {
+        position.x = target.pointing == 'east' ? position.x + parent.width / 2 : position.x;
+        position.x = target.pointing == 'weast' ? position.x - parent.width / 2 : position.x;
+        position.z = target.pointing == 'south' ? position.z + parent.width / 2 : position.z;
+        position.z = target.pointing == 'north' ? position.z - parent.width / 2 : position.z;
+      }
+
+
+      if (parent.type == 'a-cylinder') {
+        position.y = position.y;
+        position.x = position.x + base.depth / 4;
+        position.z = position.z - base.depth / 4;
+
+        console.log("target.connections", target.connections);
+        let element = elements.find(element => element.id == target.connections[0]);
+
+        console.log("element", element);
+      }
+
+      
+      base.position = position;
+      base.generatePlugs();
+
+
+      // remove plug invert of target.position //Mauvaise idée pour l'instant
+      // base.plugs.forEach(plug => {
+      //   if (plug.pointing == 'east' && target.pointing == 'weast') {
+      //     base.plugs.splice(base.plugs.indexOf(plug), 1);
+      //   }
+      //   if (plug.pointing == 'weast' && target.pointing == 'east') {
+      //     base.plugs.splice(base.plugs.indexOf(plug), 1);
+      //   }
+      //   if (plug.pointing == 'north' && target.pointing == 'south') {
+      //     base.plugs.splice(base.plugs.indexOf(plug), 1);
+      //   }
+      //   if (plug.pointing == 'south' && target.pointing == 'north') {
+      //     base.plugs.splice(base.plugs.indexOf(plug), 1);
+      //   }
+      // });
+
+
+
+      var createBase = createElementDOM(base, plug.parentElement);
+
+      console.log("createBase : ", createBase);
+
+      elements.push(base);
+      base.plugs.forEach(plug => {
+        createElementDOM(plug, createBase);
+      });
+
+      target.connections.push(base.id);
+      selected_id = null;
+      //removeElement(plug);
     }
-
-
-    if (parent.type == 'a-cylinder') {
-      position.y = position.y;
-      position.x = position.x + base.depth / 4;
-      position.z = position.z - base.depth / 4;
-
-      console.log("target.connections", target.connections);
-      let element = elements.find(element => element.id == target.connections[0]);
-
-      console.log("element", element);
-    }
-
-    
-    base.position = position;
-    base.generatePlugs();
-
-
-    // remove plug invert of target.position //Mauvaise idée pour l'instant
-    // base.plugs.forEach(plug => {
-    //   if (plug.pointing == 'east' && target.pointing == 'weast') {
-    //     base.plugs.splice(base.plugs.indexOf(plug), 1);
-    //   }
-    //   if (plug.pointing == 'weast' && target.pointing == 'east') {
-    //     base.plugs.splice(base.plugs.indexOf(plug), 1);
-    //   }
-    //   if (plug.pointing == 'north' && target.pointing == 'south') {
-    //     base.plugs.splice(base.plugs.indexOf(plug), 1);
-    //   }
-    //   if (plug.pointing == 'south' && target.pointing == 'north') {
-    //     base.plugs.splice(base.plugs.indexOf(plug), 1);
-    //   }
-    // });
-
-
-
-    var createBase = createElementDOM(base, plug.parentElement);
-
-    console.log("createBase : ", createBase);
-
-    elements.push(base);
-    base.plugs.forEach(plug => {
-      createElementDOM(plug, createBase);
-    });
-
-    target.connections.push(base.id);
-    //removeElement(plug);
   }
 
   function addPillar() {
@@ -195,43 +201,45 @@
     
     var parent = elements.find(element => element.id == plug.parentElement.id)
     var target = parent.plugs.find(element => element.id == selected_id);
+    if(target.authorized_types.find(x => x == 'PILLAR')){
+      var pillar = new Pillar();
 
-    var pillar = new Pillar();
+      let position = {
+        x: target.position.x,
+        y: target.position.y + pillar.height / 2,
+        z: target.position.z
+      };
 
-    let position = {
-      x: target.position.x,
-      y: target.position.y + pillar.height / 2,
-      z: target.position.z
-    };
+      pillar.position = position;
+      pillar.generatePlugs();
 
-    pillar.position = position;
-    pillar.generatePlugs();
+      // remove plug invert of target.position
+      // pillar.plugs.forEach(plug => {
+      //   if (plug.pointing == 'east' && target.pointing == 'weast') {
+      //     base.plugs.splice(base.plugs.indexOf(plug), 1);
+      //   }
+      //   if (plug.pointing == 'weast' && target.pointing == 'east') {
+      //     base.plugs.splice(base.plugs.indexOf(plug), 1);
+      //   }
+      //   if (plug.pointing == 'north' && target.pointing == 'south') {
+      //     base.plugs.splice(base.plugs.indexOf(plug), 1);
+      //   }
+      //   if (plug.pointing == 'south' && target.pointing == 'north') {
+      //     base.plugs.splice(base.plugs.indexOf(plug), 1);
+      //   }
+      // });
 
-    // remove plug invert of target.position
-    // pillar.plugs.forEach(plug => {
-    //   if (plug.pointing == 'east' && target.pointing == 'weast') {
-    //     base.plugs.splice(base.plugs.indexOf(plug), 1);
-    //   }
-    //   if (plug.pointing == 'weast' && target.pointing == 'east') {
-    //     base.plugs.splice(base.plugs.indexOf(plug), 1);
-    //   }
-    //   if (plug.pointing == 'north' && target.pointing == 'south') {
-    //     base.plugs.splice(base.plugs.indexOf(plug), 1);
-    //   }
-    //   if (plug.pointing == 'south' && target.pointing == 'north') {
-    //     base.plugs.splice(base.plugs.indexOf(plug), 1);
-    //   }
-    // });
+      let createPillar = createElementDOM(pillar, plug.parentElement);
+      elements.push(pillar);
 
-    let createPillar = createElementDOM(pillar, plug.parentElement);
-    elements.push(pillar);
+      pillar.plugs.forEach(plug => {
+        createElementDOM(plug, createPillar);
+      });
 
-    pillar.plugs.forEach(plug => {
-      createElementDOM(plug, createPillar);
-    });
-
-    target.connections.push(pillar.id);
-    //removeElement(plug);
+      target.connections.push(pillar.id);
+      selected_id = null;
+      //removeElement(plug);
+    }
   }
 
   function eventClick(id) {
@@ -239,30 +247,48 @@
     console.log("Elements lsit : ", elements);
 
     elements.forEach(element => {
-      let target = document.getElementById(element.id);
-      if (element.plugs) {
-        target.setAttribute('color', 'wheat');
-        element.color = 'wheat';
-      } else {
-        target.setAttribute('color', 'blue');
-        element.color = 'blue';
+
+      let elementInDOM = document.getElementById(element.id);
+
+      elementInDOM.setAttribute('color', 'wheat');
+
+      for (let i = 0; i < elementInDOM.children.length; i++) {
+        elementInDOM.children[i].setAttribute('color', 'blue');
       }
+
+      element.color = 'wheat';
+      element.plugs.forEach(plug => plug.color = 'blue')
     });
 
-    var elementInDOM = document.getElementById(id);
+    let targetElementInDOM = document.getElementById(id);
     
-    var parent = elements.find(element => element.id == elementInDOM.parentElement.id)
-    var element = parent.plugs.find(element => element.id == id);
-    element.color = 'green';
+    //#region Todo refacto car pas bo 
+    let element = elements.find(element => element.id == targetElementInDOM.id);//On cherche dans les objets principaux
 
-    elementInDOM.setAttribute('color', element.color);
-    selected_id = id;
+    if(!element){ //Si on le trouve pas cherche dans le plugs
+
+      let parent = elements.find(element => element.id == targetElementInDOM.parentElement.id);
+      element = parent.plugs.find(element => element.id == id);
+
+    }
+
+    if(element){//On applique les modifications
+      element.color = 'green';
+
+      targetElementInDOM.setAttribute('color', element.color);
+      selected_id = id;
+    }else{
+      selected_id = null;
+    }
+    //#endregion Todo refacto car pas bo
   }
 
   function removeElement() {
     if (selected_id != null) {
-      let element = elements.filter(element => element.id == selected_id)[0];
-      let target = document.getElementById(element.id);
+      let target = document.getElementById(selected_id);
+    
+      let parent = elements.find(element => element.id == target.parentElement.id)
+      let element = parent.plugs.find(element => element.id == id);
 
       if (target) {
         if (element.plugs) {
@@ -283,6 +309,23 @@
     }
 
     selected_id = null;
+  }
+
+  function turnElement(){
+    if (selected_id != null) {
+
+      let target = document.getElementById(selected_id); //HTML
+      console.log(target);
+
+      let principalElement = elements.find(element => element.id == target.id) //JS
+      console.log(principalElement);
+
+      if(principalElement){
+        principalElement.rotation.y += 90;     
+        target.setAttribute('rotation', {x: principalElement.rotation.x, y: principalElement.rotation.y, z: principalElement.rotation.z});
+        console.log("tarrrr ",target)
+      }
+    }
   }
 
   // zqsd pressed
