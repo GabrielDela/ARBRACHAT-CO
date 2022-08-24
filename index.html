@@ -87,6 +87,7 @@
     element = document.createElement(data.type);
     element.setAttribute('id', data.id);
     element.setAttribute('position', data.position.x + ' ' + data.position.y + ' ' + data.position.z);
+    element.setAttribute('rotation', data.rotation.x + ' ' + data.rotation.y + ' ' + data.rotation.z);
     element.setAttribute('width', data.width);
     element.setAttribute('depth', data.depth);
     element.setAttribute('height', data.height);
@@ -106,18 +107,22 @@
       return;
     }
 
+    var base = new Base();
+
     var target = elements.find(element => element.id == selected_id);
     var plug = document.getElementById(selected_id);
+
     let position_plug = target.position;
-
-    var parent_id = target.connections[0];
-    var parent = elements.find(element => element.id == parent_id);
-
     let position = {
       x: position_plug.x,
       y: position_plug.y,
       z: position_plug.z
     };
+
+    var parent_id = target.connections[0];
+    var parent = elements.find(element => element.id == parent_id);
+
+
 
     if (parent.type == 'a-box') {
       position.x = target.pointing == 'east' ? position.x + parent.width / 2 : position.x;
@@ -128,8 +133,9 @@
 
 
     if (parent.type == 'a-cylinder') {
-      // position.x = position.x + parent.depth / 4;
-      // position.z = position.z + parent.depth / 4;
+      position.y = position.y;
+      position.x = position.x + base.depth / 4;
+      position.z = position.z - base.depth / 4;
 
       console.log("target.connections", target.connections);
       let element = elements.find(element => element.id == target.connections[0]);
@@ -137,26 +143,28 @@
       console.log("element", element);
     }
 
-
-    var base = new Base();
+    
     base.position = position;
     base.generatePlugs();
 
-    // remove plug invert of target.position
-    base.plugs.forEach(plug => {
-      if (plug.pointing == 'east' && target.pointing == 'weast') {
-        base.plugs.splice(base.plugs.indexOf(plug), 1);
-      }
-      if (plug.pointing == 'weast' && target.pointing == 'east') {
-        base.plugs.splice(base.plugs.indexOf(plug), 1);
-      }
-      if (plug.pointing == 'north' && target.pointing == 'south') {
-        base.plugs.splice(base.plugs.indexOf(plug), 1);
-      }
-      if (plug.pointing == 'south' && target.pointing == 'north') {
-        base.plugs.splice(base.plugs.indexOf(plug), 1);
-      }
-    });
+
+    // remove plug invert of target.position //Mauvaise idée pour l'instant
+    // base.plugs.forEach(plug => {
+    //   if (plug.pointing == 'east' && target.pointing == 'weast') {
+    //     base.plugs.splice(base.plugs.indexOf(plug), 1);
+    //   }
+    //   if (plug.pointing == 'weast' && target.pointing == 'east') {
+    //     base.plugs.splice(base.plugs.indexOf(plug), 1);
+    //   }
+    //   if (plug.pointing == 'north' && target.pointing == 'south') {
+    //     base.plugs.splice(base.plugs.indexOf(plug), 1);
+    //   }
+    //   if (plug.pointing == 'south' && target.pointing == 'north') {
+    //     base.plugs.splice(base.plugs.indexOf(plug), 1);
+    //   }
+    // });
+
+
 
     createElementDOM(base);
     elements.push(base);
