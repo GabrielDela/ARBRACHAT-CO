@@ -19,7 +19,7 @@
     <a-entity id="rig" position="10 2 " rotation="0 90 0" style="transition: 0.1s;">
       <a-camera id="camera"></a-camera>
     </a-entity>
-
+  
     <!-- <a-assets>
       <a-asset-item id="cityModel" src="scene.gltf"></a-asset-item>
     </a-assets> -->
@@ -64,26 +64,28 @@
   var selected_id = null;
   var scene = document.querySelector('a-scene');
 
-  let CUBE = new Base({ color: 'red' });
-
-  console.log(CUBE);
-
   init();
 
   function init() {
     let base = new Base();
     base.generatePlugs();
 
-    createElementDOM(base);
-    elements.push(base);
+    let elementCreate = createElementDOM(base);
+    elements.push(base)
+    
+    document.querySelector('a-entity').flushToDOM();
 
     base.plugs.forEach(plug => {
-      createElementDOM(plug);
+      createElementDOM(plug, elementCreate);
       elements.push(plug);
     });
   }
 
-  function createElementDOM(data) {
+  function createElementDOM(data, parent = null) {
+
+    let elementReturn;
+
+
     element = document.createElement(data.type);
     element.setAttribute('id', data.id);
     element.setAttribute('position', data.position.x + ' ' + data.position.y + ' ' + data.position.z);
@@ -99,7 +101,9 @@
       eventClick(id);
     });
 
-    scene.appendChild(element);
+    parent != null ? elementReturn = parent.appendChild(element) : elementReturn = scene.appendChild(element);
+
+    return elementReturn;
   }
 
   function addBase() {
@@ -110,7 +114,9 @@
     var base = new Base();
 
     var target = elements.find(element => element.id == selected_id);
-    var plug = document.getElementById(selected_id);
+    var plug = document.getElementById(selected_id) ;
+    console.log("parentElement : ", plug.parentElement)
+
 
     let position_plug = target.position;
     let position = {
@@ -122,7 +128,7 @@
     var parent_id = target.connections[0];
     var parent = elements.find(element => element.id == parent_id);
 
-
+    
 
     if (parent.type == 'a-box') {
       position.x = target.pointing == 'east' ? position.x + parent.width / 2 : position.x;
@@ -166,16 +172,18 @@
 
 
 
-    createElementDOM(base);
-    elements.push(base);
+    var createBase = createElementDOM(base, plug.parentElement);
 
+    console.log("createBase : ", createBase);
+
+    elements.push(base);
     base.plugs.forEach(plug => {
-      createElementDOM(plug);
+      createElementDOM(plug, createBase);
       elements.push(plug);
     });
 
     target.connections.push(base.id);
-    removeElement(plug);
+    //removeElement(plug);
   }
 
   function addPillar() {
@@ -184,7 +192,7 @@
     }
 
     var target = elements.find(element => element.id == selected_id);
-    var plug = document.getElementById(selected_id);
+    var plugElement = document.getElementById(selected_id);
 
     var pillar = new Pillar();
 
@@ -213,16 +221,16 @@
     //   }
     // });
 
-    createElementDOM(pillar);
+    let createPillar = createElementDOM(pillar, plugElement.parentElement);
     elements.push(pillar);
 
     pillar.plugs.forEach(plug => {
-      createElementDOM(plug);
+      createElementDOM(plug, createPillar);
       elements.push(plug);
     });
 
     target.connections.push(pillar.id);
-    removeElement(plug);
+    //removeElement(plug);
   }
 
   function eventClick(id) {

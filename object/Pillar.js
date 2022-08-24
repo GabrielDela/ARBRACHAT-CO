@@ -108,9 +108,9 @@ class Pillar {
         this.plugs = [
             //#region Plug
             new Plug({
-                x: this.position.x,
-                y: this.position.y + this.height / 2,
-                z: this.position.z
+                x: 0,
+                y: this.height / 2,
+                z: 0
             }, 'north', [this.id], ['BASE', 'PILLAR']),
 
             // new Plug({

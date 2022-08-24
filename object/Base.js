@@ -108,53 +108,53 @@ class Base {
         this.plugs = [
             //#region plug for Base
             new Plug({
-                x: this.position.x,
-                y: this.position.y,
-                z: this.position.z + this.depth / 2
+                x: 0,
+                y: 0,
+                z: this.depth / 2
             }, 'south', [this.id], ['BASE']),
 
             new Plug({
-                x: this.position.x,
-                y: this.position.y,
-                z: this.position.z - this.depth / 2
+                x: 0,
+                y: 0,
+                z: -(this.depth / 2)
             }, 'north', [this.id], ['BASE']),
 
             new Plug({
-                x: this.position.x + this.width / 2,
-                y: this.position.y,
-                z: this.position.z
+                x: this.width / 2,
+                y: 0,
+                z: 0
             }, 'east', [this.id], ['BASE']),
 
             new Plug({
-                x: this.position.x - this.width / 2,
-                y: this.position.y,
-                z: this.position.z
+                x: -(this.width / 2),
+                y: 0,
+                z: 0
             }, 'weast', [this.id], ['BASE']),
             //#endregion plug for Base
 
             //#region plug for Pillar
             new Plug({
-                x: this.position.x - this.depth / 4,
-                y: this.position.y,
-                z: this.position.z + this.depth / 4
+                x: -(this.depth / 4),
+                y: 0,
+                z: (this.depth / 4)
             }, 'north-east', [this.id], ['PILLAR']),
 
             new Plug({
-                x: this.position.x - this.depth / 4,
-                y: this.position.y,
-                z: this.position.z - this.depth / 4
+                x: -(this.depth / 4),
+                y: 0,
+                z: -(this.depth / 4)
             }, 'north-west', [this.id], ['PILLAR']),
 
             new Plug({
-                x: this.position.x + this.depth / 4,
-                y: this.position.y,
-                z: this.position.z + this.depth / 4
+                x: this.depth / 4,
+                y: 0,
+                z: this.depth / 4
             }, 'south-east', [this.id], ['PILLAR']),
 
             new Plug({
-                x: this.position.x + this.depth / 4,
-                y: this.position.y,
-                z: this.position.z - this.depth / 4
+                x: this.depth / 4,
+                y: 0,
+                z: -(this.depth / 4)
             }, 'south-west', [this.id], ['PILLAR'])
             //#endregion plug for Pillar
         ];
