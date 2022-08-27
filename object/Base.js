@@ -134,27 +134,27 @@ class Base {
 
             //#region plug for Pillar
             new Plug({
-                x: -(this.depth / 4),
+                x: -(this.depth / 3),
                 y: 0,
-                z: (this.depth / 4)
+                z: (this.depth / 3)
             }, 'north-east', [this.id], ['PILLAR']),
 
             new Plug({
-                x: -(this.depth / 4),
+                x: -(this.depth / 3),
                 y: 0,
-                z: -(this.depth / 4)
+                z: -(this.depth / 3)
             }, 'north-west', [this.id], ['PILLAR']),
 
             new Plug({
-                x: this.depth / 4,
+                x: this.depth / 3,
                 y: 0,
-                z: this.depth / 4
+                z: this.depth / 3
             }, 'south-east', [this.id], ['PILLAR']),
 
             new Plug({
-                x: this.depth / 4,
+                x: this.depth / 3,
                 y: 0,
-                z: -(this.depth / 4)
+                z: -(this.depth / 3)
             }, 'south-west', [this.id], ['PILLAR'])
             //#endregion plug for Pillar
         ];

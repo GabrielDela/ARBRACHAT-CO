@@ -1,15 +1,15 @@
-class Pillar {
+class LittleBase {
     // constructor with named parameters
     constructor() {
         this.id = this.generateId();
-        this.type = 'a-cylinder';
+        this.type = 'a-box';
         this.color = 'wheat';
         this.position = { x: 0, y: 0, z: 0 };
         this.rotation = { x: 0, y: 0, z: 0 };
-        this.width = 2;
-        this.depth = 2;
-        this.height = 5;
-        this.radius = 0.4;
+        this.width = 3;
+        this.depth = 6;
+        this.height = 0.25;
+        this.radius = 0;
         this.plugs = [];
     }
 
@@ -106,20 +106,19 @@ class Pillar {
 
     generatePlugs() {
         this.plugs = [
-            //#region Plug
+            //#region plug for Pillar
             new Plug({
-                x: 0,
-                y: this.height / 2,
-                z: 0
-            }, 'north', [this.id], ['BASE', 'PILLAR', 'LITTLEBASE']),
+                x: -(this.width / 4),
+                y: 0,
+                z: (this.width / 1.5)
+            }, 'south', [this.id], ['PILLAR']),
 
-            // new Plug({
-            //     x: this.position.x,
-            //     y: this.position.y - this.depth,
-            //     z: this.position.z
-            // }, 'north', [this.id], ['BASE']),
-
-            //#endregion Plug
+            new Plug({
+                x: -(this.width / 4),
+                y: 0,
+                z: -(this.width / 1.5)
+            }, 'north', [this.id], ['PILLAR']),
+            //#endregion plug for Pillar
         ];
     }
 
